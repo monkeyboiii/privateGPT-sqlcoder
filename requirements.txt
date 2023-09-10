@@ -1,4 +1,5 @@
 langchain
+langchain-experimental
 gpt4all
 chromadb
 llama-cpp-python

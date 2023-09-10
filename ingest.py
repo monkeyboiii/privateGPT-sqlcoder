@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import os
 import glob
+import argparse
 from typing import List
 from dotenv import load_dotenv
 from multiprocessing import Pool
@@ -25,20 +26,8 @@ from langchain.vectorstores import Chroma
 from langchain.embeddings import HuggingFaceEmbeddings
 from langchain.docstore.document import Document
 
-if not load_dotenv():
-    print("Could not load .env file or it is empty. Please check if it exists and is readable.")
-    exit(1)
-
-from constants import CHROMA_SETTINGS
+from chromadb.config import Settings
 import chromadb
-
-#  Load environment variables
-persist_directory = os.environ.get('PERSIST_DIRECTORY', "vectorstore/")
-source_directory = os.environ.get('SOURCE_DIRECTORY', 'source_documents/')
-embeddings_model_name = os.environ.get(
-    'EMBEDDINGS_MODEL_NAME', "all-MiniLM-L6-v2")
-chunk_size = 500
-chunk_overlap = 50
 
 
 # Custom document loaders
@@ -121,7 +110,12 @@ def load_documents(source_dir: str, ignored_files: List[str] = []) -> List[Docum
     return results
 
 
-def process_documents(ignored_files: List[str] = []) -> List[Document]:
+def process_documents(
+    source_directory: str,
+    chunk_size: int = 500,
+    chunk_overlap: int = 50,
+    ignored_files: List[str] = []
+) -> List[Document]:
     """
     Load documents and split in chunks
     """
@@ -150,30 +144,114 @@ def does_vectorstore_exist(persist_directory: str, embeddings: HuggingFaceEmbedd
     return True
 
 
+def parse_arguments():
+    parser = argparse.ArgumentParser(
+        description="Ingest documents to vectorstore.")
+
+    parser.add_argument("-cs", "--chunk-size",
+                        type=int,
+                        help="Chunk size when splitting documents.")
+
+    parser.add_argument("-co", "--chunk-overlap",
+                        type=int,
+                        help="Chunk overlap size when splitting documents with multiple chunks.")
+
+    parser.add_argument("-n", "--model-name",
+                        type=str,
+                        help="Use this flag to disable the streaming StdOut callback for LLMs.")
+
+    parser.add_argument("-p", "--persist-directory",
+                        type=str,
+                        help="Directory to store embedding vector store.")
+
+    parser.add_argument("-s", "--source-directory",
+                        type=str,
+                        help='Directory to recursively read documents from.')
+
+    return parser.parse_args()
+
+
 def main():
+    if not load_dotenv():
+        print("Could not load .env file or it is empty. Please check if it exists and is readable.")
+        exit(1)
+
+    args = parse_arguments()
+
+    embeddings_model_name = args.model_name or os.environ.get(
+        'EMBEDDINGS_MODEL_NAME',
+        "all-MiniLM-L6-v2"
+    )
+    persist_directory = args.persist_directory or os.environ.get(
+        'PERSIST_DIRECTORY',
+        'vectorstore/'
+    )
+    source_directory = args.source_directory or os.environ.get(
+        'SOURCE_DIRECTORY',
+        'source_documents/'
+    )
+    chunk_size = args.chunk_size or os.environ.get(
+        'CHUNK_SIZE',
+        500
+    )
+    chunk_overlap = args.chunk_overlap or os.environ.get(
+        'CHUNK_OVERLAP',
+        50
+    )
+    # REMINDER: can add ignored files
+
+    CHROMA_SETTINGS = Settings(
+        persist_directory=persist_directory,
+        anonymized_telemetry=False
+    )
+
     # Create embeddings
-    embeddings = HuggingFaceEmbeddings(model_name=embeddings_model_name)
+    embeddings = HuggingFaceEmbeddings(
+        model_name=embeddings_model_name
+    )
     # Chroma client
     chroma_client = chromadb.PersistentClient(
-        settings=CHROMA_SETTINGS, path=persist_directory)
+        settings=CHROMA_SETTINGS,
+        path=persist_directory
+    )
 
     if does_vectorstore_exist(persist_directory, embeddings):
         # Update and store locally vectorstore
         print(f"Appending to existing vectorstore at {persist_directory}")
-        db = Chroma(persist_directory=persist_directory, embedding_function=embeddings,
-                    client_settings=CHROMA_SETTINGS, client=chroma_client)
+        db = Chroma(
+            persist_directory=persist_directory,
+            embedding_function=embeddings,
+            client_settings=CHROMA_SETTINGS,
+            client=chroma_client
+        )
         collection = db.get()
-        texts = process_documents([metadata['source']
-                                  for metadata in collection['metadatas']])
+        texts = process_documents(
+            source_directory=source_directory,
+            chunk_size=chunk_size,
+            chunk_overlap=chunk_overlap,
+            ignored_files=[metadata['source']
+                           for metadata in collection['metadatas']]
+        )
         print(f"Creating embeddings. May take some minutes...")
         db.add_documents(texts)
+
     else:
         # Create and store locally vectorstore
         print("Creating new vectorstore")
-        texts = process_documents()
+        texts = process_documents(
+            source_directory=source_directory,
+            chunk_size=chunk_size,
+            chunk_overlap=chunk_overlap,
+            ignored_files=[]
+        )
         print(f"Creating embeddings. May take some minutes...")
-        db = Chroma.from_documents(texts, embeddings, persist_directory=persist_directory,
-                                   client_settings=CHROMA_SETTINGS, client=chroma_client)
+        db = Chroma.from_documents(
+            texts, embeddings,
+            persist_directory=persist_directory,
+            client_settings=CHROMA_SETTINGS,
+            client=chroma_client
+        )
+
     db.persist()
     db = None
 
