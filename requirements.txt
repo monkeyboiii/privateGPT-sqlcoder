@@ -1,8 +1,17 @@
+########################################
+#### langchain
 langchain
 langchain-experimental
+
+## model
 gpt4all
 chromadb
 llama-cpp-python
+
+## embeddings
+sentence_transformers
+
+## misc
 urllib3
 PyMuPDF
 python-dotenv
@@ -12,8 +21,10 @@ tabulate
 pandoc
 pypandoc
 tqdm
-sentence_transformers
+
+########################################
+#### SQLCoder
 accelerate
-transfomers
 bitsandbytes
 torch
+transfomers

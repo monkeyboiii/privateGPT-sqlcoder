@@ -1,2 +1,0 @@
-chromadb
-llama-cpp-python
