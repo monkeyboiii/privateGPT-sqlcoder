@@ -27,4 +27,4 @@ tqdm
 accelerate
 bitsandbytes
 torch
-transfomers
+transformers
