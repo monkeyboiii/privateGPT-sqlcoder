@@ -22,9 +22,20 @@ pandoc
 pypandoc
 tqdm
 
+
 ########################################
 #### SQLCoder
 accelerate
 bitsandbytes
 torch
 transformers
+
+
+########################################
+#### streamlit
+streamlit
+streamlit-chat
+streamlit-timeline
+barfi
+st-pages
+watchdog

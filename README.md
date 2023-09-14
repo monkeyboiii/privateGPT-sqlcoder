@@ -1,6 +1,6 @@
 # privateGPT-sqlcoder
 
-A fork from [privateGPT](https://github.com/imartinez/privateGPT), integrated with [sqlcoder](https://huggingface.co/defog/sqlcoder), enabling text-to-sql generation.
+The source code is hosted on [github](https://github.com/monkeyboiii/privateGPT-sqlcoder). This is a work developed at ZOFUND under the supervision of Mr. Shoubo Sheng. It's a fork from [privateGPT](https://github.com/imartinez/privateGPT), which has [sqlcoder](https://huggingface.co/defog/sqlcoder) integrated with the help of [langchain](https://github.com/langchain-ai/langchain), to enable text-to-sql generation.
 
 ## Usage
 
@@ -17,9 +17,13 @@ Build embedding vector store:
 python ingest.py [--help]
 ```
 
-Run text-to-sql model:
+Run the app:
 
 ```python
+# Streamlit interface
+streamlit run app.py
+
+# Text-to-sql model cli
 python privateGPT.py [--help]
 ```
 

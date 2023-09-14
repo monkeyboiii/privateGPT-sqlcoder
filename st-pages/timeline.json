@@ -1,0 +1,71 @@
+{
+    "title": {
+        "text": {
+            "headline": "My Internship Timeline",
+            "text": "<p>Visual display of my schedule and progress</p>"
+        }
+    },
+    "events": [
+        {
+            "media": {
+                "url": "https://1000logos.net/wp-content/uploads/2019/07/Genesis-symbol.jpg",
+                "link": "https://huggingface.co/spaces/calvinlu88/gennys",
+                "caption": "A Naive Project Attempting to Understand AI-related Concepts (<a target=\"_blank\" href='https://huggingface.co/spaces/calvinlu88/gennys'>link</a>)"
+            },
+            "start_date": {
+                "year": "2023",
+                "month": "8",
+                "day": "28"
+            },
+            "text": {
+                "headline": "Learning AI-related Conecpts",
+                "text": "<p>I used online course from FastAi (<a target=\"_blank\" href='https://course.fast.ai/'>credits</a>), where I learned about basic concepts in AI such as models, transformers, tokenizer, embedding, etc., through building a demo project (<a target=\"_blank\" href='https://huggingface.co/spaces/calvinlu88/gennys'>link</a>). </p>"
+            }
+        },
+        {
+            "media": {
+                "url": "https://media.licdn.com/dms/image/D4D12AQH4sRoj9narOg/article-cover_image-shrink_720_1280/0/1684856996049?e=2147483647&v=beta&t=2JbqGi2oWZiaX5Nuo9i7ZBbyqr16pVNr4RyVG46N13M",
+                "caption": "Tools used in research and designing, links in reference setion"
+            },
+            "start_date": {
+                "year": "2023",
+                "month": "8",
+                "day": "30"
+            },
+            "text": {
+                "headline": "Research and Solution Desigin before Coding",
+                "text": "<p>In order to meet the requirements and regulations, I resort to OSS models and frameworks for building a solution that will run on our on-premise machine. Through trial and error, the best OSS Text-to-SQL model is defog/SQLCoder (<a target=\"_blank\" href='https://defog.ai/'>credits</a>), where I successfully run their demo on google Colab to get preliminary results.</p>"
+            }
+        },
+        {
+            "media": {
+                "url": "https://assets.entrepreneur.com/content/3x2/2000/1649279368-Ent-2022Python.jpeg?format=pjeg&auto=webp&crop=16:9&width=675&height=380",
+                "caption": "Start Building Code and Integration"
+            },
+            "start_date": {
+                "year": "2023",
+                "month": "9",
+                "day": "4"
+            },
+            "text": {
+                "headline": "Coding",
+                "text": "<p>I use Python and Jupyter Notebook as my local environment, following both guidance and best practices from langchain. Through extensive source code reading and customizing, I found SQLDatabaseChain in langchain library best suits our requirements.</p>"
+            }
+        },
+        {
+            "media": {
+                "url": "https://datasciencedojo.com/wp-content/uploads/Overview-of-LangChain-Modules-.png",
+                "caption": "Langchain Coding Improvemnet and SQLCoder integration"
+            },
+            "start_date": {
+                "year": "2023",
+                "month": "9",
+                "day": "11"
+            },
+            "text": {
+                "headline": "More Coding",
+                "text": "<p>I use streamlit as my interface, and wrote integration code to put all things together. Through more coding I found more improvment methods, which I don't have enough time to integrate, and I will introduce them in the following section.</p>"
+            }
+        }
+    ]
+}
