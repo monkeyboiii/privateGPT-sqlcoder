@@ -8,7 +8,7 @@ import json
 
 
 db_path = "sqlite:///../db/retention-sqlite.db"
-example_values_path = "../downloads/retention/retention-values.txt"
+example_values_path = "../downloads/retention/values.txt"
 table_name = "fact_retention_model"
 iterations = 100
 

@@ -6,9 +6,9 @@ import re
 import json
 
 
-full_sql_text_file = os.path.join(os.getcwd(), "retention-sql-full.txt")
-directory_write = os.path.join(os.getcwd(), "retention_question")
-obj_dump_file = os.path.join(os.getcwd(), "retention_question_query.json")
+directory_write = "../downloads/retention/question"
+full_sql_text_file = "../downloads/retention/sql-full.txt"
+obj_dump_file = "../downloads/retention/question_query.json"
 
 
 pattern = r"\d+、(.+?)(?=\d+、)"  # regex lookahead
@@ -44,7 +44,7 @@ def main():
     extract_text(full_sql_text_file, pattern)
 
     with open(obj_dump_file, 'w+', encoding='utf-8') as write_file:
-        json.dump(qaqs, write_file, indent=4, ensure_ascii=False)
+        json.dump(qaqs, write_file, indent=2, ensure_ascii=False)
 
 
 if __name__ == "__main__":
