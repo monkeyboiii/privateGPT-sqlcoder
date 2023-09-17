@@ -58,12 +58,16 @@ st.markdown(
     * :red[Inaccurate] and :red[incorrect] answers are returned;
     * Chinese support may not be ideal.
     * Model may be too :red[large].
+    * Interface has :red[no] interaction or evaluation button.
+    * Chatbot should support :red[asynchronous} calling.
 
 2. LLMs and SQL improvements from langchain, specifically:
     * Use `ConversationSummaryBufferMemory` to summarize chat history;
     * Use :green[distributed] GPU setup;
     * Add `HumanApprovalCallbackhandler` human-in-the-loop tool validation, this suggests using `SQLAgent` to support a wider range of tools;
     * Explore a variety of models to find the most :green[suitable] ones.
+    * Add button to :green[interrupt], :green[evaluate] the answer.
+    * Implement *green[asynchronous] calling function in langchain framework.
 """)
 
 

@@ -11,19 +11,21 @@ from langchain.callbacks.streaming_stdout import StreamingStdOutCallbackHandler
 from langchain.vectorstores import Chroma
 from langchain.llms import GPT4All, LlamaCpp
 from SQLCoder import SQLCoder
+from chromadb.config import Settings
 import chromadb
-
-from constants import CHROMA_SETTINGS
 
 
 if not load_dotenv():
     print("Could not load .env file or it is empty. Please check if it exists and is readable.")
     exit(1)
 
-embeddings_model_name = os.environ.get(
-    "EMBEDDINGS_MODEL_NAME", "all-MiniLM-L6-v2")
+embedding_model_name = os.environ.get(
+    "EMBEDDING_MODEL_NAME", "all-MiniLM-L6-v2")
 persist_directory = os.environ.get('PERSIST_DIRECTORY', "vectorstore/")
-
+CHROMA_SETTINGS = Settings(
+    persist_directory=persist_directory,
+    anonymized_telemetry=False
+)
 model_type = os.environ.get('MODEL_TYPE')
 model_path = os.environ.get('MODEL_PATH')
 
@@ -56,7 +58,7 @@ def main():
     # Parse the command line arguments
     args = parse_arguments()
 
-    embeddings = HuggingFaceEmbeddings(model_name=embeddings_model_name)
+    embeddings = HuggingFaceEmbeddings(model_name=embedding_model_name)
     chroma_client = chromadb.PersistentClient(
         settings=CHROMA_SETTINGS, path=persist_directory)
     db = Chroma(persist_directory=persist_directory, embedding_function=embeddings,

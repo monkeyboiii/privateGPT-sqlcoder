@@ -7,6 +7,7 @@ from transformers import AutoTokenizer, AutoModelForCausalLM
 from langchain.callbacks.manager import CallbackManagerForLLMRun
 from langchain.llms.base import LLM
 from langchain.pydantic_v1 import Field, root_validator
+from langchain.llms.utils import enforce_stop_tokens
 
 
 class SQLCoder(LLM):
@@ -14,11 +15,11 @@ class SQLCoder(LLM):
     # model init
     model: str
     local_files_only: bool = False  # for model only
-    torch_dtype: Optional(torch.dtype) = torch.bfloat16,
-    load_in_8bit: Optional(bool) = False,
-    load_in_4bit: Optional(bool) = False,
-    device_map: Optional(str) = "auto",
-    use_cache: Optional(bool) = True,
+    torch_dtype: Optional[torch.dtype] = torch.bfloat16,
+    load_in_8bit: Optional[bool] = False,
+    load_in_4bit: Optional[bool] = False,
+    device_map: Optional[str] = "auto",
+    use_cache: Optional[bool] = True,
 
     # model
     tokenizer: Any = None
@@ -27,9 +28,9 @@ class SQLCoder(LLM):
     # model params
     num_return_sequences: Optional[int] = 1
     eos_token: Optional[str] = Field(
-        "```", "End of sequence token used in prompt")
+        "```", description="End of sequence token used in prompt")
     eos_token_id: None = Field(
-        None, "Automatically calculated by tokenizer, should not supply")
+        None, description="Automatically calculated by tokenizer, should not supply")
     max_new_tokens: Optional[int] = 500
     do_sample: Optional[bool] = False
     num_beams: Optional[int] = 5
@@ -137,10 +138,11 @@ class SQLCoder(LLM):
             **inputs,
             **params
         )
-        outputs = self.tokenizer.batch_decode(
+        text = self.tokenizer.batch_decode(
             generated_ids, skip_special_tokens=True)
-
-        return outputs
+        if stop is not None:
+            text = enforce_stop_tokens(text, stop)
+        return text
 
     # REVIEW: necessary?
     # def __del__(self):

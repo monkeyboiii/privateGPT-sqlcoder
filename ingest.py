@@ -178,8 +178,8 @@ def main():
 
     args = parse_arguments()
 
-    embeddings_model_name = args.model_name or os.environ.get(
-        'EMBEDDINGS_MODEL_NAME',
+    embedding_model_name = args.model_name or os.environ.get(
+        'EMBEDDING_MODEL_NAME',
         "all-MiniLM-L6-v2"
     )
     persist_directory = args.persist_directory or os.environ.get(
@@ -207,7 +207,7 @@ def main():
 
     # Create embeddings
     embeddings = HuggingFaceEmbeddings(
-        model_name=embeddings_model_name
+        model_name=embedding_model_name
     )
     # Chroma client
     chroma_client = chromadb.PersistentClient(

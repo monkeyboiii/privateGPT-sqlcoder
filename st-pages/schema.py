@@ -1,7 +1,12 @@
 from barfi import st_barfi, barfi_schemas, Block
+from st_pages import add_page_title
 import streamlit as st
 
 
+add_page_title()
+
+
+##############################
 feed = Block(name='Feed')
 feed.add_output()
 
@@ -73,6 +78,7 @@ database.add_output("Schema Output")
 database.add_output("Result Output")
 
 
+########################################
 load_schema = st.selectbox('Select a saved schema:', barfi_schemas())
 
 compute_engine = st.checkbox('Activate barfi compute engine', value=False)
