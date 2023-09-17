@@ -31,7 +31,7 @@ class SQLCoder(LLM):
         "```", description="End of sequence token used in prompt")
     eos_token_id: None = Field(
         None, description="Automatically calculated by tokenizer, should not supply")
-    max_new_tokens: Optional[int] = 500
+    max_new_tokens: Optional[int] = 2048
     do_sample: Optional[bool] = False
     num_beams: Optional[int] = 5
 
@@ -128,10 +128,8 @@ class SQLCoder(LLM):
                 prompt = "Once upon a time, "
                 response = model(prompt, max_new_tokens=500)
         """
-        if stop is not None:
-            raise ValueError("stop kwargs are not required")
-
-        inputs = self.tokenizer(prompt, return_tensors="pt").to("cuda")
+        eos_prompt = prompt + "```sql"
+        inputs = self.tokenizer(eos_prompt, return_tensors="pt").to("cuda")
         params = {**self._default_params(), **kwargs}
 
         generated_ids = self.client.generate(

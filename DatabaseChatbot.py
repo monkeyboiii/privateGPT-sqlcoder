@@ -43,6 +43,12 @@ db_uri = os.environ.get("DATABASE_URI", "sqlite:///db/retention-sqlite.db")
 # LLM
 model_path = os.environ.get(
     "MODEL_PATH", "models/ggml-model-gpt4all-falcon-q4_0.bin")
+local_files_only = os.environ.get("LOCAL_FILES_ONLY", "true").lower() == "true"
+load_in_4bit = os.environ.get("LOAD_IN_4BIT", "false").lower() == "true"
+load_in_8bit = os.environ.get("LOAD_IN_8BIT", "false").lower() == "true"
+max_new_tokens = int(os.environ.get("MAX_NEW_TOKENS", "2048"))
+device_map = os.environ.get("DEVICE_MAP", "auto")
+use_cache = os.environ.get("USE_CACHE", "true").lower() == "true"
 
 # SQLDatabaseChatbot
 qaq_pairs = {}
@@ -243,28 +249,38 @@ class DatabaseChatbot(BaseModel):
             sample_rows_in_table_info=2)
 
         # Large language model (LLM)
-        llm = GPT4All(
-            model=model_path,
-            max_tokens=2048,
-            backend='gptj',
-            n_batch=8,
-            # callbacks=[StreamingStdOutCallbackHandler()],
-            # verbose=True
-        )
+        # llm = GPT4All(
+        #     model=model_path,
+        #     max_tokens=2048,
+        #     backend='gptj',
+        #     n_batch=8,
+        #     # callbacks=[StreamingStdOutCallbackHandler()],
+        #     # verbose=True
+        # )
+        sqlcoder_kwargs = {
+            "model": values.get("model_path", model_path),
+            "local_files_only": values.get("local_files_only", local_files_only),
+            "load_in_4bit": values.get("load_in_4bit", load_in_4bit),
+            "load_in_8bit": values.get("load_in_8bit", load_in_4bit),
+            "max_new_tokens": values.get("max_new_tokens", max_new_tokens),
+            "device_map": values.get("device_map", device_map),
+            "use_cache": values.get("use_cache", use_cache),
+        }
+        llm = SQLCoder(**sqlcoder_kwargs)
 
         # SQLDatabaseChain args
         SQLDatabaseChain_kwargs = {
             # Will return sql-command directly without executing it
-            "return_sql": values.get("RETURN_SQL_ONLY", return_sql_only),
+            "return_sql": values.get("return_sql_only", return_sql_only),
             # Whether or not to return the intermediate steps along with the final answer.
-            "return_intermediate_steps": values.get("RETURN_INTERMEDIATE_STEP", return_intermediate_steps),
+            "return_intermediate_steps": values.get("return_intermediate_steps", return_intermediate_steps),
             # Whether or not to return the result of querying the SQL table directly.
-            "return_direct": values.get("RETURN_DIRECT", return_direct),
+            "return_direct": values.get("return_direct", return_direct),
             # Whether or not the query checker tool should be used to attempt to fix the initial SQL from the LLM.
-            "use_query_checker": values.get("USE_QUERY_CHECKER", use_query_checker),
+            "use_query_checker": values.get("use_query_checker", use_query_checker),
             # The prompt template that should be used by the query checker
             "query_checker_prompt": None,
-            "top_k": values.get("QUERY_TOP_K", query_top_k),
+            "top_k": values.get("query_top_k", query_top_k),
         }
         memory = ConversationBufferMemory(
             input_key='input', memory_key="history")
