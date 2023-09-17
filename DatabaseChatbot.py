@@ -45,12 +45,6 @@ model_type = os.environ.get(
     "MODEL_TYPE", "GPT4All")
 model_path = os.environ.get(
     "MODEL_PATH", "models/ggml-model-gpt4all-falcon-q4_0.bin")
-local_files_only = os.environ.get("LOCAL_FILES_ONLY", "true").lower() == "true"
-load_in_4bit = os.environ.get("LOAD_IN_4BIT", "false").lower() == "true"
-load_in_8bit = os.environ.get("LOAD_IN_8BIT", "false").lower() == "true"
-max_new_tokens = int(os.environ.get("MAX_NEW_TOKENS", "2048"))
-device_map = os.environ.get("DEVICE_MAP", "auto")
-use_cache = os.environ.get("USE_CACHE", "true").lower() == "true"
 
 # SQLDatabaseChatbot
 qaq_pairs = {}
@@ -214,7 +208,7 @@ class DatabaseChatbot(BaseModel):
 
     @root_validator(pre=True)
     def validate_chain(cls, values):
-        verbosity = values.get("verbose", chatbot_verbosity)
+        _verbosity = values.get("verbose", chatbot_verbosity)
 
         # retriever args
         CHROMA_SETTINGS = Settings(
@@ -255,7 +249,7 @@ class DatabaseChatbot(BaseModel):
         llm_model_type = values.get("model_type", model_type)
         if llm_model_type == "GPT4All":
             llm = GPT4All(
-                model=model_path,
+                model=values.get("model_path", model_path),
                 max_tokens=2048,
                 backend='gptj',
                 n_batch=8,
@@ -263,16 +257,9 @@ class DatabaseChatbot(BaseModel):
                 # verbose=True
             )
         elif llm_model_type == "SQLCoder":
-            sqlcoder_kwargs = {
-                "model": values.get("model_path", model_path),
-                "local_files_only": values.get("local_files_only", local_files_only),
-                "load_in_4bit": values.get("load_in_4bit", load_in_4bit),
-                "load_in_8bit": values.get("load_in_8bit", load_in_4bit),
-                "max_new_tokens": values.get("max_new_tokens", max_new_tokens),
-                "device_map": values.get("device_map", device_map),
-                "use_cache": values.get("use_cache", use_cache),
-            }
-            llm = SQLCoder(**sqlcoder_kwargs)
+            llm = SQLCoder(
+                model=values.get("model_path", model_path),
+                verbosity=_verbosity)
         else:
             raise ValueError(f"Not implemented model type {llm_model_type}")
 
@@ -301,9 +288,9 @@ class DatabaseChatbot(BaseModel):
                 retriever=retriever,
                 memory=memory,
                 prompt=custom_prompt_for_llm,
-                callbacks=[StreamingStdOutCallbackHandler()] if verbosity else [
+                callbacks=[StreamingStdOutCallbackHandler()] if _verbosity else [
                 ],
-                verbose=verbosity,
+                verbose=_verbosity,
             ),
             database=db,
             **SQLDatabaseChain_kwargs

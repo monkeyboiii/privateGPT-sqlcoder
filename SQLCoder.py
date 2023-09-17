@@ -1,36 +1,44 @@
 """lanchain wrapper around defog/sqlcoder"""
 from typing import Any, Dict, List, Mapping, Optional, Set
+from dotenv import load_dotenv
+import os
 
 import torch
 from transformers import AutoTokenizer, AutoModelForCausalLM
 
 from langchain.callbacks.manager import CallbackManagerForLLMRun
 from langchain.llms.base import LLM
-from langchain.pydantic_v1 import Field, root_validator
+from langchain.pydantic_v1 import root_validator
 from langchain.llms.utils import enforce_stop_tokens
+
+
+load_dotenv()
+
+
+# loading
+local_files_only = os.environ.get("LOCAL_FILES_ONLY", "true").lower() == "true"
+torch_dtype = torch.bfloat16
+load_in_8bit = os.environ.get("LOAD_IN_8BIT", "false").lower() == "true"
+load_in_4bit = os.environ.get("LOAD_IN_4BIT", "false").lower() == "true"
+device_map = os.environ.get("DEVICE_MAP", "auto")
+use_cache = os.environ.get("LOAD_IN_8BIT", "true").lower() == "true"
+
+# running
+max_new_tokens = int(os.environ.get("MAX_NEW_TOKENS", "2048"))
 
 
 class SQLCoder(LLM):
 
     # model init
     model: str
-    local_files_only: bool = False  # for model only
-    torch_dtype: Optional[torch.dtype] = torch.bfloat16,
-    load_in_8bit: Optional[bool] = False,
-    load_in_4bit: Optional[bool] = False,
-    device_map: Optional[str] = "auto",
-    use_cache: Optional[bool] = True,
-
     # model
-    tokenizer: Any = None
-    client: Any = None
+    tokenizer: AutoTokenizer = None
+    client: AutoModelForCausalLM = None
 
     # model params
     num_return_sequences: Optional[int] = 1
-    eos_token: Optional[str] = Field(
-        "```", description="End of sequence token used in prompt")
-    eos_token_id: None = Field(
-        None, description="Automatically calculated by tokenizer, should not supply")
+    eos_token: str = "```"  # End of sequence token used in prompt
+    eos_token_id: int = 0  # Automatically calculated by tokenizer, should not supply
     max_new_tokens: Optional[int] = 2048
     do_sample: Optional[bool] = False
     num_beams: Optional[int] = 5
@@ -59,7 +67,6 @@ class SQLCoder(LLM):
     @root_validator()
     def validate_environment(cls, values: Dict) -> Dict:
         r"""validate and initialize env for SQLCoder model"""
-
         if not torch.cuda.is_available():
             raise RuntimeError("Cuda not available")
 
@@ -79,12 +86,13 @@ class SQLCoder(LLM):
 
             values["client"] = AutoModelForCausalLM.from_pretrained(
                 values["model"],
-                local_files_only=values["local_files_only"],
-                torch_dtype=values["torch_dtype"],
-                load_in_8bit=values["load_in_8bit"],
-                load_in_4bit=values["load_in_4bit"],
-                device_map=values["device_map"],
-                use_cache=values["use_cache"],
+                local_files_only=values.get(
+                    "local_files_only", local_files_only),
+                torch_dtype=values.get("torch_dtype", torch_dtype),
+                load_in_8bit=values.get("load_in_8bit", load_in_8bit),
+                load_in_4bit=values.get("load_in_4bit", load_in_4bit),
+                device_map=values.get("device_map", device_map),
+                use_cache=values.get("use_cache", use_cache),
             )
         except Exception as e:
             raise Exception(f"Error {e}")
@@ -128,19 +136,28 @@ class SQLCoder(LLM):
                 prompt = "Once upon a time, "
                 response = model(prompt, max_new_tokens=500)
         """
-        eos_prompt = prompt + "```sql"
+        # Use custom eos token in vocab
+        eos_prompt = prompt.strip(stop[0] if stop else None) + self.eos_token
         inputs = self.tokenizer(eos_prompt, return_tensors="pt").to("cuda")
         params = {**self._default_params(), **kwargs}
-
         generated_ids = self.client.generate(
             **inputs,
             **params
         )
-        text = self.tokenizer.batch_decode(
+        outputs = self.tokenizer.batch_decode(
             generated_ids, skip_special_tokens=True)
-        if stop is not None:
-            text = enforce_stop_tokens(text, stop)
-        return text
+
+        if self.verbose:
+            print("[*] Debug ouputs:")
+            print(outputs)
+
+        # Trim output
+        # if stop is not None:
+        #     result = enforce_stop_tokens(outputs[0], stop)
+        sql_cmd = outputs[0].split(
+            self.eos_token, 1)[1].split(self.eos_token)[0].split(";")[0].strip() + ";"
+
+        return sql_cmd
 
     # REVIEW: necessary?
     # def __del__(self):
