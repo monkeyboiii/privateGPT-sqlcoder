@@ -46,7 +46,7 @@ st.markdown(
     2. Coding best practices, specifically:
         * Use :blue[Jupyter Notebooks] for interactiveness and readability, even to non-coders;
         * Leveraged :blue[pydantic] to ensure code quality, easier for future adaptation and integration;
-        * Wrote approximately a total of :blue[1.5k] lines python code;
+        * Wrote approximately a total of :blue[2k+] lines python code;
         * Iteratively improving the logic flow of my implementation, design -> implement -> evaulate -> improve loop.
 """)
 st.subheader("⛽️ Room for Improvement")
