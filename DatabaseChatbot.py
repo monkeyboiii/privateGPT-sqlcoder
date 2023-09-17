@@ -41,6 +41,8 @@ include_tables = os.environ.get(
 db_uri = os.environ.get("DATABASE_URI", "sqlite:///db/retention-sqlite.db")
 
 # LLM
+model_type = os.environ.get(
+    "MODEL_TYPE", "GPT4All")
 model_path = os.environ.get(
     "MODEL_PATH", "models/ggml-model-gpt4all-falcon-q4_0.bin")
 local_files_only = os.environ.get("LOCAL_FILES_ONLY", "true").lower() == "true"
@@ -249,24 +251,30 @@ class DatabaseChatbot(BaseModel):
             sample_rows_in_table_info=2)
 
         # Large language model (LLM)
-        # llm = GPT4All(
-        #     model=model_path,
-        #     max_tokens=2048,
-        #     backend='gptj',
-        #     n_batch=8,
-        #     # callbacks=[StreamingStdOutCallbackHandler()],
-        #     # verbose=True
-        # )
-        sqlcoder_kwargs = {
-            "model": values.get("model_path", model_path),
-            "local_files_only": values.get("local_files_only", local_files_only),
-            "load_in_4bit": values.get("load_in_4bit", load_in_4bit),
-            "load_in_8bit": values.get("load_in_8bit", load_in_4bit),
-            "max_new_tokens": values.get("max_new_tokens", max_new_tokens),
-            "device_map": values.get("device_map", device_map),
-            "use_cache": values.get("use_cache", use_cache),
-        }
-        llm = SQLCoder(**sqlcoder_kwargs)
+        llm = None
+        llm_model_type = values.get("model_type", model_type)
+        if llm_model_type == "GPT4All":
+            llm = GPT4All(
+                model=model_path,
+                max_tokens=2048,
+                backend='gptj',
+                n_batch=8,
+                # callbacks=[StreamingStdOutCallbackHandler()],
+                # verbose=True
+            )
+        elif llm_model_type == "SQLCoder":
+            sqlcoder_kwargs = {
+                "model": values.get("model_path", model_path),
+                "local_files_only": values.get("local_files_only", local_files_only),
+                "load_in_4bit": values.get("load_in_4bit", load_in_4bit),
+                "load_in_8bit": values.get("load_in_8bit", load_in_4bit),
+                "max_new_tokens": values.get("max_new_tokens", max_new_tokens),
+                "device_map": values.get("device_map", device_map),
+                "use_cache": values.get("use_cache", use_cache),
+            }
+            llm = SQLCoder(**sqlcoder_kwargs)
+        else:
+            raise ValueError(f"Not implemented model type {llm_model_type}")
 
         # SQLDatabaseChain args
         SQLDatabaseChain_kwargs = {

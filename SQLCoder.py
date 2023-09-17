@@ -64,7 +64,7 @@ class SQLCoder(LLM):
             raise RuntimeError("Cuda not available")
 
         try:
-            values["tokenzier"] = AutoTokenizer.from_pretrained(
+            values["tokenizer"] = AutoTokenizer.from_pretrained(
                 values["model"])
 
             values["eos_token_id"] = values["tokenizer"].convert_tokens_to_ids([values["eos_token"]])[
