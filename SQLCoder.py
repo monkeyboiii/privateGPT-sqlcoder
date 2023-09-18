@@ -81,7 +81,7 @@ class SQLCoder(LLM):
                 raise ValueError(
                     "End of sequence token (eos_token) not in tokenizer's vocab")
 
-            if values["load_in_8bit"] and values["load_in_4bit"]:
+            if values.get("load_in_8bit", load_in_8bit) and values.get("load_in_4bit", load_in_4bit):
                 raise ValueError("Load in both 4 and 8 bit not allowed")
 
             values["client"] = AutoModelForCausalLM.from_pretrained(

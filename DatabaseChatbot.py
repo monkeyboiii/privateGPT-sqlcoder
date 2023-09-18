@@ -202,6 +202,14 @@ class RetrievalLLMChainWithMemory(LLMChain):
             return {**inputs, **outputs}
 
 
+class HumanConversationBufferMemory(ConversationBufferMemory):
+    def save_context(self, inputs: Dict[str, Any], outputs: Dict[str, str]) -> None:
+        """Save context from this conversation to buffer."""
+        input_str, output_str = self._get_input_output(inputs, outputs)
+        self.chat_memory.add_user_message(input_str)
+        # self.chat_memory.add_ai_message(output_str)
+
+
 class DatabaseChatbot(BaseModel):
     sqlDatabaseChain: SQLDatabaseChain
     verbose: Optional[bool] = False
@@ -277,7 +285,8 @@ class DatabaseChatbot(BaseModel):
             "query_checker_prompt": None,
             "top_k": values.get("query_top_k", query_top_k),
         }
-        memory = ConversationBufferMemory(
+        # memory = ConversationBufferMemory(
+        memory = HumanConversationBufferMemory(
             input_key='input', memory_key="history")
         custom_prompt_for_llm = get_custom_template(db)
 

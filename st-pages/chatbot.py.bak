@@ -1,5 +1,6 @@
-"""Inspiration from https://github.com/cefege/seo-chat-bot/blob/master/streamlit_app.py"""
-
+"""Inspiration from https://github.com/cefege/seo-chat-bot/blob/master/streamlit_app.py
+Modify this to allow more functionalities.
+"""
 from st_pages import add_page_title
 import streamlit as st
 from concurrent.futures import ThreadPoolExecutor

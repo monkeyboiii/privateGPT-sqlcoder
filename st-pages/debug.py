@@ -3,7 +3,6 @@ import streamlit as st
 import time
 import os
 import signal
-from random import randint
 
 
 state = st.session_state
@@ -32,4 +31,4 @@ if stop:
     st.write("Stopped process with pid:", state["subpid"])
     state["subpid"] = None
 
-print("[*] Once")
+print("[*] Debug refreshed...")

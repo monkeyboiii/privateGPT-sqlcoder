@@ -47,27 +47,27 @@ st.markdown(
         * Use :blue[Jupyter Notebooks] for interactiveness and readability, even to non-coders;
         * Leveraged :blue[pydantic] to ensure code quality, easier for future adaptation and integration;
         * Wrote approximately a total of :blue[2k+] lines python code;
-        * Iteratively improving the logic flow of my implementation, design -> implement -> evaulate -> improve loop.
+        * :blue[Iteratively] improving the logic flow of my implementation, design -> implement -> evaulate -> improve loop.
 """)
 st.subheader("⛽️ Room for Improvement")
 st.markdown(
     """
 1. Current implementation limitations, specifically:
-    * Model cannot parse longer text, chat history might be :red[lost];
+    * Model cannot parse longer text, table info, sample rows or chat history might be :red[lost];
     * Model might be :red[unresponsive] under too much questions;
     * :red[Inaccurate] and :red[incorrect] answers are returned;
     * Chinese support may not be ideal.
     * Model may be too :red[large].
     * Interface has :red[no] interaction or evaluation button.
-    * Chatbot should support :red[asynchronous} calling.
+    * Chatbot should support :red[asynchronous] calling.
 
 2. LLMs and SQL improvements from langchain, specifically:
-    * Use `ConversationSummaryBufferMemory` to summarize chat history;
+    * Use `ConversationSummaryBufferMemory` or other techniques to summarize chat history;
     * Use :green[distributed] GPU setup;
     * Add `HumanApprovalCallbackhandler` human-in-the-loop tool validation, this suggests using `SQLAgent` to support a wider range of tools;
     * Explore a variety of models to find the most :green[suitable] ones.
     * Add button to :green[interrupt], :green[evaluate] the answer.
-    * Implement *green[asynchronous] calling function in langchain framework.
+    * Implement :green[asynchronous] calling function in langchain framework.
 """)
 
 

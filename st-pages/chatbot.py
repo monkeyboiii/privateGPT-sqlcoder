@@ -1,6 +1,6 @@
+"""Inspiration from https://github.com/cefege/seo-chat-bot/blob/master/streamlit_app.py"""
 from st_pages import add_page_title
 import streamlit as st
-from pprint import pprint
 from DatabaseChatbot import DatabaseChatbot
 
 
@@ -36,7 +36,6 @@ def add_user_message_to_session(prompt):
 @st.cache_resource
 def load_chatbot():
     return DatabaseChatbot()
-    return ThreadPoolExecutor()
 
 
 def generate_assistant_response(chatbot, query):
@@ -48,8 +47,6 @@ def generate_assistant_response(chatbot, query):
             # blocking
             conversation = chatbot({"query": query.strip()})
 
-        print("[*] Returned conversation:")
-        pprint(conversation)
         full_response = conversation.get(
             "result", "Sorry, something is wrong.")
         message_placeholder.write(full_response)
