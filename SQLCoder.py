@@ -2,7 +2,7 @@
 from typing import Any, Dict, List, Mapping, Optional, Set
 from dotenv import load_dotenv
 import os
-import logging
+from pprint import pprint
 
 import torch
 from transformers import AutoTokenizer, AutoModelForCausalLM
@@ -150,7 +150,10 @@ class SQLCoder(LLM):
         outputs = self.tokenizer.batch_decode(
             generated_ids, skip_special_tokens=True)
 
-        logging.debug(f"Untrimmed outputs:\n{outputs}")
+        if self.verbose:
+            print("[*] Untrimmed output:")
+            pprint(outputs)
+
         # Trim output
         # if stop is not None:
         #     result = enforce_stop_tokens(outputs[0], stop)

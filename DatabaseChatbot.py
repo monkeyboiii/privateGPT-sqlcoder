@@ -6,6 +6,7 @@ import json
 from dotenv import load_dotenv
 from pydantic import BaseModel, root_validator
 import logging
+from pprint import pprint
 
 from langchain.memory import ConversationBufferMemory
 from langchain.chains.llm import LLMChain
@@ -26,16 +27,16 @@ from SQLCoder import SQLCoder
 
 
 load_dotenv()
-logging_level = {
-    "debug": logging.DEBUG,
-    "info": logging.INFO,
-    "warn": logging.WARN,
-    "error": logging.ERROR,
-    "crit": logging.CRITICAL,
-}
-logging.basicConfig(format="[%(asctime)s] [%(levelname)s] [%(name)s] %(message)s",
-                    datefmt="%Y-%m-%d %H:%M:%S.uuu",
-                    level=logging_level.get(os.environ.get("LOGGING_LEVEL", "info").lower(), "info"))
+# logging_level = {
+#     "debug": logging.DEBUG,
+#     "info": logging.INFO,
+#     "warn": logging.WARN,
+#     "error": logging.ERROR,
+#     "crit": logging.CRITICAL,
+# }
+# logging.basicConfig(format="[%(asctime)s] [%(levelname)s] [%(name)s] %(message)s",
+#                     datefmt="%Y-%m-%d %H:%M:%S.uuu",
+#                     level=logging_level.get(os.environ.get("LOGGING_LEVEL", "info").lower(), "info"))
 
 # Embedding
 embedding_model = os.environ.get(
@@ -112,7 +113,9 @@ def stuff_combine_docs(
         doc_strings)
 
     formatted = prompt.format(**inputs)
-    logging.debug("The combined docs:```\nformatted\n```")
+    # logging.debug("The combined docs:```\nformatted\n```")
+    if self.verbose:
+        print(f"[*] stuff_combine_docs: combined docs```\n{formatted}\n```")
     return formatted
 
 
@@ -180,7 +183,10 @@ class RetrievalLLMChainWithMemory(LLMChain):
                 input_variables=["context"],
                 template="""Some examples of SQL queries response that correspond to human inquiry are listed below:\n{context}\n\n""")
         )
-        logging.debug(f"The prepped input: {inputs}")
+        # logging.debug(f"The prepped input: {inputs}")
+        if self.verbose:
+            print("[*] RetrievalLLMChainWithMemory: prepped inputs...")
+            pprint(inputs)
         self._validate_inputs(inputs)
         return inputs
 
@@ -199,7 +205,10 @@ class RetrievalLLMChainWithMemory(LLMChain):
         # Maybe use summary memory?
         if self.memory is not None:
             self.memory.save_context(inputs, outputs)
-        logging.debug("The prepped output: {}")
+        # logging.debug("The prepped output: {}")
+        if self.verbose:
+            print("[*] RetrievalLLMChainWithMemory: prepped outputs...")
+            pprint(outputs)
         if return_only_outputs:
             return outputs
         else:
@@ -307,7 +316,10 @@ class DatabaseChatbot(BaseModel):
     def get_history(self):
         history_dict = self.sqlDatabaseChain.llm_chain.memory.load_memory_variables({
         })
-        logging.debug("Current history: {}")
+        # logging.debug("Current history: {}")
+        if self.verbose:
+            print("[*] DatabaseChatbot: current history...")
+            pprint(history_dict)
         return history_dict
 
 
