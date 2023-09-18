@@ -6,9 +6,9 @@ import re
 import json
 
 
-directory_write = "../downloads/retention/question"
-full_sql_text_file = "../downloads/retention/sql-full.txt"
-obj_dump_file = "../downloads/retention/question_query.json"
+directory_write = "retention/question"
+full_sql_text_file = "retention/sql.txt"
+obj_dump_file = "retention/question_query.json"
 
 
 pattern = r"\d+、(.+?)(?=\d+、)"  # regex lookahead

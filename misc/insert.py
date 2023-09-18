@@ -1,33 +1,38 @@
 """Insert random sample values into retention sqilte database."""
 from typing import Any, Dict, Set
-from sqlalchemy import create_engine, insert, delete, table, column
+from sqlalchemy import create_engine, insert, table, column, text
 from sqlalchemy.types import INTEGER, REAL, TEXT
 from random import choice
-from pprint import pprint
 import json
 
 
 db_path = "sqlite:///../db/retention-sqlite.db"
-example_values_path = "../downloads/retention/values.txt"
+create_sql_file = "retention/create.sql"
+example_values_path = "retention/values.txt"
 table_name = "fact_retention_model"
-iterations = 100
+iterations = 1000
 
 
 names = [
     "fathercodename",
     "raisetype",
     "product_type_bi",
-    "agencyname_adj",
+    "agencyname",
+    "property",
+    "is_settlement",
     "custtype",
     "tougu_flag",
     "business_module",
     "cdate",
+    "islastwkday_month",
+    "islastwkday_quarter",
+    "islastwkday_year",
     "invest_manager",
     "parentareaname",
     "salescenter",
     "retail_brokername",
-    "provname",
-    "CITYNAME",
+    "province",
+    "city",
     "relaname",
     "age",
     "port_code",
@@ -35,7 +40,8 @@ names = [
     "fundname",
     "shares",
     "asset",
-    "asset_fof"
+    "asset_fof",
+    "customer_id"
 ]
 type_mappings = {
     k: TEXT for k in names
@@ -44,13 +50,14 @@ type_mappings["age"] = INTEGER
 type_mappings["shares"] = REAL
 type_mappings["asset"] = REAL
 type_mappings["asset_fof"] = REAL
+type_mappings["customer_id"] = INTEGER
 values: Dict[str, Set[Any]] = {}
 
 
 def convert(name, iterable):
     if name in ["shares", "asset", "asset_fof"]:
         return set(map(lambda x: float(x), iterable))
-    elif name in ["age"]:
+    elif name in ["age", "customer_id"]:
         return set(map(lambda x: int(x), iterable))
     else:
         return iterable
@@ -70,9 +77,13 @@ with open(example_values_path, "r") as file:
     )
 
     with engine.connect() as conn:
-        conn.execute(delete(retention_table))
+        with open(create_sql_file, "r") as create:
+            query = text(create.read())
+            conn.execute(text(f"DROP TABLE IF EXISTS {table_name};"))
+            conn.execute(query)
 
-        while iterations > 0:
+        n = iterations
+        while n > 0:
             # random choice of values from each set
             insert_values = {k: choice(tuple(values[k]))
                              for k in values.keys()}
@@ -84,6 +95,8 @@ with open(example_values_path, "r") as file:
                 f"Inserted: {json.dumps(stmt.compile().params, ensure_ascii=False)[:80]}...")
             result = conn.execute(stmt)
 
-            iterations -= 1
+            n -= 1
 
         conn.commit()
+
+    print(f"{iterations} entries inserted into table {table_name}")

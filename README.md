@@ -4,11 +4,34 @@ The source code is hosted on [github](https://github.com/monkeyboiii/privateGPT-
 
 ## Usage
 
+Install dependencies"
+
+```shell
+# conda environment recommended
+pip install -r requirements.txt
+```
+
 Define necessary environment variables:
 
 ```bash
 # Copy `example.env` file to `.env`
 cp example.env .env
+```
+
+Use example data
+
+```shell
+# enter misc directory
+cd misc
+
+# format questions
+python format_question.py
+
+# populate sqlite database
+python insert.py
+
+# return to project level
+cd ..
 ```
 
 Build embedding vector store:
@@ -20,7 +43,7 @@ python ingest.py [--help]
 Run the app:
 
 ```python
-# Streamlit interface
+# Streamlit interface (recommended)
 streamlit run app.py
 
 # Text-to-sql model cli

@@ -2,6 +2,7 @@
 from typing import Any, Dict, List, Mapping, Optional, Set
 from dotenv import load_dotenv
 import os
+import logging
 
 import torch
 from transformers import AutoTokenizer, AutoModelForCausalLM
@@ -24,7 +25,8 @@ device_map = os.environ.get("DEVICE_MAP", "auto")
 use_cache = os.environ.get("LOAD_IN_8BIT", "true").lower() == "true"
 
 # running
-max_new_tokens = int(os.environ.get("MAX_NEW_TOKENS", "2048"))
+_max_new_tokens = int(os.environ.get("MAX_NEW_TOKENS", "2048"))
+_verbose = os.environ.get("SQLCODER_VERBOSE", "False").lower() == "true"
 
 
 class SQLCoder(LLM):
@@ -34,12 +36,13 @@ class SQLCoder(LLM):
     # model
     tokenizer: AutoTokenizer = None
     client: AutoModelForCausalLM = None
+    verbose: Optional[bool] = _verbose
 
     # model params
     num_return_sequences: Optional[int] = 1
     eos_token: str = "```"  # End of sequence token used in prompt
     eos_token_id: int = 0  # Automatically calculated by tokenizer, should not supply
-    max_new_tokens: Optional[int] = 2048
+    max_new_tokens: Optional[int] = _max_new_tokens
     do_sample: Optional[bool] = False
     num_beams: Optional[int] = 5
 
@@ -147,10 +150,7 @@ class SQLCoder(LLM):
         outputs = self.tokenizer.batch_decode(
             generated_ids, skip_special_tokens=True)
 
-        if self.verbose:
-            print("[*] Debug ouputs:")
-            print(outputs)
-
+        logging.debug(f"Untrimmed outputs:\n{outputs}")
         # Trim output
         # if stop is not None:
         #     result = enforce_stop_tokens(outputs[0], stop)
@@ -158,7 +158,3 @@ class SQLCoder(LLM):
             self.eos_token, 1)[1].split(self.eos_token)[0].split(";")[0].strip() + ";"
 
         return sql_cmd
-
-    # REVIEW: necessary?
-    # def __del__(self):
-    #     torch.cuda.empty_cache()

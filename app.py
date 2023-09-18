@@ -8,6 +8,7 @@ show_pages(
         Page("st-pages/presentation.py", "Presentation", "📽️"),
         Page("st-pages/schema.py", "Schema", "📝"),
         Page("st-pages/chatbot.py", "Text-to-SQL", "🤖️"),
+        Page("st-pages/example.py", "Example", "🧬"),
         Page("st-pages/debug.py", "Debug", "🐛"),
         # Will use the default icon and name based on the filename if you don't
         # pass them

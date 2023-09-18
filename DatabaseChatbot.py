@@ -5,6 +5,7 @@ import os
 import json
 from dotenv import load_dotenv
 from pydantic import BaseModel, root_validator
+import logging
 
 from langchain.memory import ConversationBufferMemory
 from langchain.chains.llm import LLMChain
@@ -22,11 +23,19 @@ from langchain.vectorstores import Chroma
 from chromadb.config import Settings
 from langchain.llms import GPT4All
 from SQLCoder import SQLCoder
-from pprint import pprint
 
 
 load_dotenv()
-
+logging_level = {
+    "debug": logging.DEBUG,
+    "info": logging.INFO,
+    "warn": logging.WARN,
+    "error": logging.ERROR,
+    "crit": logging.CRITICAL,
+}
+logging.basicConfig(format="[%(asctime)s] [%(levelname)s] [%(name)s] %(message)s",
+                    datefmt="%Y-%m-%d %H:%M:%S.uuu",
+                    level=logging_level.get(os.environ.get("LOGGING_LEVEL", "info").lower(), "info"))
 
 # Embedding
 embedding_model = os.environ.get(
@@ -49,7 +58,7 @@ model_path = os.environ.get(
 # SQLDatabaseChatbot
 qaq_pairs = {}
 _specific_question_and_query_file = os.environ.get(
-    "QUESTION_QUERY_PAIR", "downloads/retention/question_query.json"
+    "QUESTION_QUERY_PAIR", "misc/retention/question_query.json"
 )
 with open(_specific_question_and_query_file, 'r') as file:
     qaq_pairs = json.load(file)
@@ -60,15 +69,15 @@ return_direct = os.environ.get("RETURN_DIRECT", "false").lower() == "true"
 use_query_checker = os.environ.get(
     "USE_QUERY_CHECKER", "false").lower() == "true"
 query_top_k = int(os.environ.get("QUERY_TOP_K", "3"))
-chatbot_verbosity = os.environ.get(
-    "CHATBOT_VERBOSITY", "false").lower() == "true"
+chatbot_verbose = os.environ.get(
+    "CHATBOT_VERBOSE", "false").lower() == "true"
 
 
 def format_pairs(pairs: dict, question: str) -> Union[str, None]:
     if question is not None and question in pairs.keys():
         return f"Example inquiry: {question}\nCorresponding response: {pairs[question]}"
     else:
-        print(f"[!] No such key as {question} in retrieving process")
+        logging.warn(f"[!] No such key as {question} in retrieving process")
         return None
 
 
@@ -103,8 +112,7 @@ def stuff_combine_docs(
         doc_strings)
 
     formatted = prompt.format(**inputs)
-    if verbose:
-        print("[*] The combined docs:```\nformatted\n```")
+    logging.debug("The combined docs:```\nformatted\n```")
     return formatted
 
 
@@ -172,9 +180,7 @@ class RetrievalLLMChainWithMemory(LLMChain):
                 input_variables=["context"],
                 template="""Some examples of SQL queries response that correspond to human inquiry are listed below:\n{context}\n\n""")
         )
-        if self.verbose:
-            print("[*] The prepped input:")
-            pprint(inputs)
+        logging.debug(f"The prepped input: {inputs}")
         self._validate_inputs(inputs)
         return inputs
 
@@ -193,21 +199,11 @@ class RetrievalLLMChainWithMemory(LLMChain):
         # Maybe use summary memory?
         if self.memory is not None:
             self.memory.save_context(inputs, outputs)
-        if self.verbose:
-            print("[*] The prepped output:")
-            pprint(outputs)
+        logging.debug("The prepped output: {}")
         if return_only_outputs:
             return outputs
         else:
             return {**inputs, **outputs}
-
-
-class HumanConversationBufferMemory(ConversationBufferMemory):
-    def save_context(self, inputs: Dict[str, Any], outputs: Dict[str, str]) -> None:
-        """Save context from this conversation to buffer."""
-        input_str, output_str = self._get_input_output(inputs, outputs)
-        self.chat_memory.add_user_message(input_str)
-        # self.chat_memory.add_ai_message(output_str)
 
 
 class DatabaseChatbot(BaseModel):
@@ -216,7 +212,7 @@ class DatabaseChatbot(BaseModel):
 
     @root_validator(pre=True)
     def validate_chain(cls, values):
-        _verbosity = values.get("verbose", chatbot_verbosity)
+        _verbose = values.get("verbose", chatbot_verbose)
 
         # retriever args
         CHROMA_SETTINGS = Settings(
@@ -266,8 +262,7 @@ class DatabaseChatbot(BaseModel):
             )
         elif llm_model_type == "SQLCoder":
             llm = SQLCoder(
-                model=values.get("model_path", model_path),
-                verbosity=_verbosity)
+                model=values.get("model_path", model_path))
         else:
             raise ValueError(f"Not implemented model type {llm_model_type}")
 
@@ -285,8 +280,7 @@ class DatabaseChatbot(BaseModel):
             "query_checker_prompt": None,
             "top_k": values.get("query_top_k", query_top_k),
         }
-        # memory = ConversationBufferMemory(
-        memory = HumanConversationBufferMemory(
+        memory = ConversationBufferMemory(
             input_key='input', memory_key="history")
         custom_prompt_for_llm = get_custom_template(db)
 
@@ -297,9 +291,9 @@ class DatabaseChatbot(BaseModel):
                 retriever=retriever,
                 memory=memory,
                 prompt=custom_prompt_for_llm,
-                callbacks=[StreamingStdOutCallbackHandler()] if _verbosity else [
+                callbacks=[StreamingStdOutCallbackHandler()] if _verbose else [
                 ],
-                verbose=_verbosity,
+                verbose=_verbose,
             ),
             database=db,
             **SQLDatabaseChain_kwargs
@@ -313,23 +307,19 @@ class DatabaseChatbot(BaseModel):
     def get_history(self):
         history_dict = self.sqlDatabaseChain.llm_chain.memory.load_memory_variables({
         })
-        if self.verbose:
-            print("[*] The current history:")
-            pprint(history_dict)
+        logging.debug("Current history: {}")
         return history_dict
 
 
 def main():
     chatbot = DatabaseChatbot()
 
+    from pprint import pprint
     result1 = chatbot({"query": "查询上月末产品类型为投顾类基金保有规模和人数"})
     pprint(result1)
 
     result2 = chatbot({"query": "这其中招商银行的保有规模是多少"})
     pprint(result2)
-
-    # print("[*] The current history:")
-    # pprint(chatbot.get_history())
 
 
 if __name__ == "__main__":
