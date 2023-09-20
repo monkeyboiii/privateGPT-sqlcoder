@@ -106,5 +106,7 @@ st.markdown(
     [2] Langchain, MAR 13, 2023. LLMs and SQL. [link](ttps://blog.langchain.dev/llms-and-sql/)
     
     [3] Yao, S., Zhao, J., Yu, D., Du, N., Shafran, I., Narasimhan, K., & Cao, Y. (2022). React: Synergizing reasoning and acting in language models. [link](https://arxiv.org/abs/2210.03629)
+
+    [4] Ken Van Haren. Jan 18, 2023. Replacing a SQL analyst with 26 recursive GPT prompts. [link](https://www.patterns.app/blog/2023/01/18/crunchbot-sql-analyst-gpt/?ref=blog.langchain.dev)
 """
 )

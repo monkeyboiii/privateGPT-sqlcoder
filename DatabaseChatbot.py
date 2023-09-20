@@ -114,7 +114,7 @@ def stuff_combine_docs(
 
     formatted = prompt.format(**inputs)
     # logging.debug("The combined docs:```\nformatted\n```")
-    if self.verbose:
+    if verbose:
         print(f"[*] stuff_combine_docs: combined docs```\n{formatted}\n```")
     return formatted
 
