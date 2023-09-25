@@ -5,7 +5,7 @@ show_pages(
         Page("st-pages/home.py", "Home", "🏠"),
         # Can use :<icon-name>: or the actual icon
         # The pages appear in the order you pass them
-        Page("st-pages/presentation.py", "Presentation", "📽️"),
+        Page("st-pages/presentation-cn.py", "Presentation", "📽️"),
         Page("st-pages/schema.py", "Schema", "📝"),
         Page("st-pages/chatbot.py", "Text-to-SQL", "🤖️"),
         Page("st-pages/example.py", "Example", "🧬"),

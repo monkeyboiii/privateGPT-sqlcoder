@@ -1,0 +1,71 @@
+{
+    "title": {
+        "text": {
+            "headline": "我的实习时间表",
+            "text": "<p>直观显示我的日程安排和进度</p>"
+        }
+    },
+    "events": [
+        {
+            "media": {
+                "url": "https://1000logos.net/wp-content/uploads/2019/07/Genesis-symbol.jpg",
+                "link": "https://huggingface.co/spaces/calvinlu88/gennys",
+                "caption": "一个试图理解人工智能相关概念的入门项目 (<a target=\"_blank\" href='https://huggingface.co/spaces/calvinlu88/gennys'>link</a>)"
+            },
+            "start_date": {
+                "year": "2023",
+                "month": "8",
+                "day": "28"
+            },
+            "text": {
+                "headline": "学习人工智能相关概念",
+                "text": "<p>我使用了 FastAi 的在线课程 (<a target=\"_blank\" href='https://course.fast.ai/'>credits</a>), 通过构建演示项目，我了解了人工智能的基本概念，例如模型、转换器、分词器、嵌入等 (<a target=\"_blank\" href='https://huggingface.co/spaces/calvinlu88/gennys'>link</a>). </p>"
+            }
+        },
+        {
+            "media": {
+                "url": "https://media.licdn.com/dms/image/D4D12AQH4sRoj9narOg/article-cover_image-shrink_720_1280/0/1684856996049?e=2147483647&v=beta&t=2JbqGi2oWZiaX5Nuo9i7ZBbyqr16pVNr4RyVG46N13M",
+                "caption": "研究和设计中使用的工具，参考部分的链接"
+            },
+            "start_date": {
+                "year": "2023",
+                "month": "8",
+                "day": "30"
+            },
+            "text": {
+                "headline": "编码前的研究和解决方案设计",
+                "text": "<p>为了满足相关法律法规，我采用开源的模型和框架来构建将在我们的本地计算机上运行的解决方案。 经过反复试验，我发现最好的开源 Text-to-SQL模型是defog/SQLCoder (<a target=\"_blank\" href='https://defog.ai/'>credits</a>)。 这里我通过 Google Colab 成功运行了他们的示例语句，得到了初步结果。</p>"
+            }
+        },
+        {
+            "media": {
+                "url": "https://assets.entrepreneur.com/content/3x2/2000/1649279368-Ent-2022Python.jpeg?format=pjeg&auto=webp&crop=16:9&width=675&height=380",
+                "caption": "开始构建代码和集成"
+            },
+            "start_date": {
+                "year": "2023",
+                "month": "9",
+                "day": "4"
+            },
+            "text": {
+                "headline": "编码",
+                "text": "<p>我使用 Python 和 Jupyter Notebook 作为本地环境，遵循 Langchain 的最佳实践和构建方法，通过大量的源代码阅读和自定义类型，我发现 Langchain 中的 SQLDatabaseChain 最适合我们的要求，并实现了SQL生成链条。</p>"
+            }
+        },
+        {
+            "media": {
+                "url": "https://datasciencedojo.com/wp-content/uploads/Overview-of-LangChain-Modules-.png",
+                "caption": "Langchain 代码改进和 SQLCoder 集成"
+            },
+            "start_date": {
+                "year": "2023",
+                "month": "9",
+                "day": "11"
+            },
+            "text": {
+                "headline": "更多编码",
+                "text": "<p>我使用streamlit作为界面，并编写代码集成所有组件，并改进已有链条，例如加入记忆功能，优化嵌入查询等。 通过更多的编码，我发现了更多的改进方法，其中一些我没有足够的时间来整合，我将在下一节中介绍它们。</p>"
+            }
+        }
+    ]
+}

@@ -4,7 +4,7 @@ The source code is hosted on [github](https://github.com/monkeyboiii/privateGPT-
 
 ## Usage
 
-Install dependencies"
+Install dependencies:
 
 ```shell
 # conda environment recommended
